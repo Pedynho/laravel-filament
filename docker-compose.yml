@@ -5,55 +5,57 @@ networks:
         driver: bridge
 
 services:
-    laravel9:
+    laravel-filament:
         build: 
             context: .
             dockerfile: Dockerfile
-        image: laravel9
-        container_name: laravel9
+        image: laravel-filament
+        container_name: laravel-filament
         restart: unless-stopped
         tty: true
         working_dir: /var/www/html
         volumes: 
             - ./src:/var/www/html
-            - /var/www/html/vendor/
+            - /var/www/html/src/.env
+            - ./src/vendor:/var/www/html/vendor/
             - /var/www/html/storage/
             - /var/www/html/bootstrap/
+            - ./php.ini-production:/usr/local/etc/php/php.ini
         networks: 
             - app-network
         depends_on:
-            - mysql
+            - mysql-filament
     
-    mysql:
+    mysql-filament:
         image: mysql:8
-        container_name: mysql8
+        container_name: mysql8-filament
         restart: unless-stopped
         tty: true
         ports: 
-            - 3306:3306
+            - 3307:3306
         environment: 
-            MYSQL_DATABASE: laravel
+            MYSQL_DATABASE: filament
             MYSQL_ROOT_PASSWORD: 123456
             MYSQL_PASSWORD: 123456
-            MYSQL_USER: laravel
+            MYSQL_USER: filament
             SERVICE_TAGS: dev
-            SERVICE_NAME: mysql
+            SERVICE_NAME: mysql-filament
         networks:
             - app-network
         volumes:
             - ./mysql:/var/lib/mysql
     
-    nginx:
+    nginx-filament:
         image: nginx:1.19.8-alpine
-        container_name: nginx1.19
+        container_name: nginx1.19-filament
         restart: unless-stopped
         tty: true
         ports: 
-            - 8100:80
+            - 8080:80
         volumes: 
             - ./src:/var/www/html
             - ./nginx/conf:/etc/nginx/conf.d
         networks: 
             - app-network
         depends_on:
-            - laravel9
+            - laravel-filament

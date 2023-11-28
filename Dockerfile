@@ -1,4 +1,4 @@
-FROM php:8.1-fpm-buster
+FROM php:8.2-fpm-buster
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -14,10 +14,10 @@ RUN apt-get update && apt-get install -y \
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd intl
 
 # Install Postgre PDO
-RUN apt-get update && apt-get install -y libpq-dev && docker-php-ext-install pdo pdo_pgsql
+RUN apt-get update && apt-get install -y libpq-dev && docker-php-ext-install pdo pdo_pgsql soap
 
 # Microsoft SQL Server Prerequisites
 RUN apt-get update
@@ -38,6 +38,11 @@ RUN ACCEPT_EULA=Y apt-get install -y --no-install-recommends \
 RUN apt-get update
 RUN pecl install sqlsrv pdo_sqlsrv xdebug \
     && docker-php-ext-enable sqlsrv pdo_sqlsrv xdebug
+
+RUN apt-get install vim -y
+
+# Arquivo de incialização PHP liberando as extensões
+COPY ./php.ini-production /usr/local/etc/php
 
 # Setup working directory
 WORKDIR /var/www/html
